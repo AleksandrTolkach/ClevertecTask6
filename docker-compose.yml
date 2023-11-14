@@ -1,0 +1,15 @@
+version: '3.5'
+services:
+  db:
+    image: postgres:14.2-alpine
+    restart: always
+    env_file:
+      - postgresql/db.env
+    ports:
+      - "5434:5432"
+    networks:
+      - employee-network
+
+networks:
+  employee-network:
+    name: employee-network

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.10.xsd">
+
+  <changeSet id="000-add-tag" author="toukach">
+    <tagDatabase tag="v0.0"/>
+  </changeSet>
+
+  <changeSet id="001-create-table" author="toukach">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="employees" schemaName="application"/>
+      </not>
+    </preConditions>
+
+    <createSequence
+      schemaName="application"
+      sequenceName="employees_id_seq"
+      incrementBy="1"
+      maxValue="10000"
+      startValue="1"
+    />
+
+    <createTable tableName="employees" schemaName="application">
+      <column name="id" type="BIGINT" defaultValueComputed="nextval('application.employees_id_seq')">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="created_at" type="TIMESTAMP"/>
+      <column name="name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="date_of_birth" type="DATE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="specialization" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="active" type="BOOLEAN">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <rollback>
+      <delete tableName="employees" schemaName="application"/>
+      <dropTable tableName="employees" schemaName="application"/>
+      <dropSequence sequenceName="employees_id_seq" schemaName="application"/>
+    </rollback>
+  </changeSet>
+</databaseChangeLog>
