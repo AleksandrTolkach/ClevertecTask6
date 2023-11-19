@@ -1,0 +1,11 @@
+database:
+  url: jdbc:postgresql://localhost:5434/%s
+  name: employee
+  username: toukach
+  password: clevertec
+  driver: org.postgresql.Driver
+  changeLogFile: db/migration/liquibase/changelog.xml
+  liquibaseSchema: liquibase
+cache:
+  size: 3
+  algorithm: LRU
