@@ -24,6 +24,9 @@ public class ApplicationProperties {
   public static final String DB_LIQUIBASE_SCHEMA;
   public static final String CACHE_SIZE;
   public static final String CACHE_ALGORITHM;
+  public static final String PRINT_OUT_DIRECTORY;
+  public static final String PRINT_FONT_FILE_PATH;
+  public static final String PRINT_TEMPLATE_FILE_PATH;
 
   static {
     InputStream resourceAsStream = ApplicationProperties.class.getClassLoader()
@@ -43,5 +46,8 @@ public class ApplicationProperties {
     DB_LIQUIBASE_SCHEMA = employeeServicePropertiesWrapper.getDatabase().getLiquibaseSchema();
     CACHE_SIZE = employeeServicePropertiesWrapper.getCache().getSize();
     CACHE_ALGORITHM = employeeServicePropertiesWrapper.getCache().getAlgorithm();
+    PRINT_OUT_DIRECTORY = employeeServicePropertiesWrapper.getPrint().getOutDirectory();
+    PRINT_FONT_FILE_PATH = employeeServicePropertiesWrapper.getPrint().getFontFilePath();
+    PRINT_TEMPLATE_FILE_PATH = employeeServicePropertiesWrapper.getPrint().getTemplateFilePath();
   }
 }

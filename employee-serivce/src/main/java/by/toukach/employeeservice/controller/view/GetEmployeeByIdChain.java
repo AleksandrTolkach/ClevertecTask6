@@ -21,6 +21,14 @@ public class GetEmployeeByIdChain extends ActionViewChain {
     EmployeeService employeeService = getEmployeeService();
     log.info(employeeService.getById(id).toString());
 
-    setNextViewChain(new ActionListViewChain());
+    log.info(ViewMessage.EMPLOYEE_ACTION_LIST);
+    int answer = scanner.nextInt();
+    scanner.nextLine();
+
+    if (answer == 1) {
+      setNextViewChain(new SingleEmployeeDocumentChain(id));
+    } else {
+      setNextViewChain(new ActionListViewChain());
+    }
   }
 }

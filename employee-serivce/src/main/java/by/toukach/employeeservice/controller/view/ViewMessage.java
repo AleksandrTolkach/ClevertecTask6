@@ -22,5 +22,7 @@ public class ViewMessage {
   public static final String BYE = "Всего доброго!";
   public static final String EMPLOYEE_DTO_FORMAT_CHOOSE =
       "Выберите формат ввода данных\n1. JSON\n2. XML";
+
+  public static final String EMPLOYEE_ACTION_LIST = "1. Печать в PDF\n2. Назад\n";
 }
 

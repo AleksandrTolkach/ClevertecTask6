@@ -28,6 +28,7 @@ ext {
     glassfishVersion = '5.0.0'
     logbackVersion = '1.4.7'
     assertjVersion = '3.24.2'
+    itextVersion = '5.5.13.3'
 }
 
 dependencies {
@@ -58,10 +59,12 @@ dependencies {
     implementation "org.hibernate:hibernate-validator:${validatorVersion}"
     implementation group: 'org.glassfish.expressly', name: 'expressly', version: "${glassfishVersion}"
 
+    implementation group: 'com.itextpdf', name: 'itextpdf', version: "${itextVersion}"
 
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
 }
 

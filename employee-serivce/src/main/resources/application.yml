@@ -9,3 +9,7 @@ database:
 cache:
   size: 3
   algorithm: LRU
+print:
+  outDirectory: file
+  fontFilePath: document/pdf/font/Alice-Regular.ttf
+  templateFilePath: document/pdf/template/Clevertec_Template.pdf
