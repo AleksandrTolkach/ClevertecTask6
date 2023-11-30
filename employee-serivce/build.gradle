@@ -1,0 +1,94 @@
+plugins {
+    id 'java'
+    id "io.freefair.lombok" version "6.5.1"
+    id "io.freefair.aspectj.post-compile-weaving" version "6.4.1"
+}
+
+group 'by.toukach'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    junitVersion = '5.9.2'
+    mockitoVersion = '5.6.0'
+    postgresVersion = '42.6.0'
+    jacksonVersion = '2.15.1'
+    jsr310Verison = '2.3.0-rc1'
+    mapstructVersion = '1.5.5.Final'
+    snakeYamlVersion = '2.2'
+    liquibaseCoreVersion = '4.24.0'
+    liquibaseSlf4jVersion = '5.0.0'
+    slf4jVersion = '2.0.9'
+    aspectjVersion = '1.9.19'
+    jdbcTemplateVerison = '6.0.6'
+    validatorVersion = '8.0.0.Final'
+    glassfishVersion = '5.0.0'
+    logbackVersion = '1.4.7'
+    assertjVersion = '3.24.2'
+    itextVersion = '5.5.13.3'
+}
+
+dependencies {
+    implementation group: 'org.postgresql', name: 'postgresql', version: "${postgresVersion}"
+
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: "${jacksonVersion}"
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: "${jacksonVersion}"
+
+
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+    implementation group: 'org.yaml', name: 'snakeyaml', version: "${snakeYamlVersion}"
+
+    implementation group: 'org.liquibase', name: 'liquibase-core', version: "${liquibaseCoreVersion}"
+    implementation group: 'com.mattbertolini', name: 'liquibase-slf4j', version: "${liquibaseSlf4jVersion}"
+
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: "${slf4jVersion}"
+    implementation "ch.qos.logback:logback-classic:${logbackVersion}"
+
+
+    implementation "org.aspectj:aspectjrt:${aspectjVersion}"
+    implementation "org.aspectj:aspectjweaver:${aspectjVersion}"
+    implementation "org.aspectj:aspectjtools:${aspectjVersion}"
+    implementation "org.springframework:spring-jdbc:${jdbcTemplateVerison}"
+
+    implementation "org.hibernate:hibernate-validator:${validatorVersion}"
+    implementation group: 'org.glassfish.expressly', name: 'expressly', version: "${glassfishVersion}"
+
+    implementation group: 'com.itextpdf', name: 'itextpdf', version: "${itextVersion}"
+
+    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs = [
+            '-Amapstruct.suppressGeneratorTimestamp=true'
+    ]
+    options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    manifest {
+        attributes(
+                'Main-Class': 'by.toukach.employeeservice.Main',
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version
+        )
+    }
+}
