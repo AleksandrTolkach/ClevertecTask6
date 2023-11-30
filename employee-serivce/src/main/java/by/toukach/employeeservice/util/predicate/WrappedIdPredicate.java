@@ -1,7 +1,7 @@
 package by.toukach.employeeservice.util.predicate;
 
 import by.toukach.employeeservice.exception.ExceptionMessage;
-import by.toukach.employeeservice.exception.MethodException;
+import by.toukach.employeeservice.exception.ReflectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
@@ -39,7 +39,7 @@ public class WrappedIdPredicate<I> implements Predicate<Entry<I, ?>>  {
       return id.equals(objectId);
 
     } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException ex) {
-      throw new MethodException(
+      throw new ReflectionException(
           String.format(ExceptionMessage.INVOKE_METHOD, GET_ID_METHOD_FIELD), ex);
     }
   }

@@ -15,4 +15,5 @@ public class EmployeeServicePropertiesWrapper {
 
   private DataBasePropertiesWrapper database;
   private CachePropertiesWrapper cache;
+  private PrintPropertiesWrapper print;
 }
