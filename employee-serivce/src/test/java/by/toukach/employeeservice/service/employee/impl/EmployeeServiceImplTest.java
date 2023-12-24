@@ -13,6 +13,8 @@ import by.toukach.employeeservice.dao.Employee;
 import by.toukach.employeeservice.dto.EmployeeDto;
 import by.toukach.employeeservice.dto.EmployeeDto.Fields;
 import by.toukach.employeeservice.dto.InfoEmployeeDto;
+import by.toukach.employeeservice.dto.Page;
+import by.toukach.employeeservice.dto.Pageable;
 import by.toukach.employeeservice.exception.EntityNotFoundException;
 import by.toukach.employeeservice.exception.ExceptionMessage;
 import by.toukach.employeeservice.exception.ValidationExceptionList;
@@ -162,20 +164,28 @@ public class EmployeeServiceImplTest {
     Employee employee = EmployeeTestData.builder()
         .build()
         .buildEmployee();
-    List<Employee> employeeList = List.of(employee);
-
     InfoEmployeeDto infoEmployeeDto = EmployeeTestData.builder()
         .build()
         .buildInfoEmployeeDto();
-    List<InfoEmployeeDto> expected = List.of(infoEmployeeDto);
 
-    when(employeeRepository.findAll())
-        .thenReturn(employeeList);
-    when(employeeMapper.employeeToInfoEmployeeDto(employee))
-        .thenReturn(infoEmployeeDto);
+    List<Employee> content = List.of(employee);
+    List<InfoEmployeeDto> expectedContent = List.of(infoEmployeeDto);
+
+    Pageable pageable = Pageable.builder()
+        .pageNumber(0)
+        .pageSize(1)
+        .build();
+
+    Page<Employee> employeePage = Page.of(pageable, content, content.size());
+    Page<InfoEmployeeDto> expected = Page.of(pageable, expectedContent, expectedContent.size());
+
+    when(employeeRepository.findAll(pageable))
+        .thenReturn(employeePage);
+    when(employeeMapper.toInfoEmployeeDtoPage(employeePage))
+        .thenReturn(expected);
 
     // when
-    List<InfoEmployeeDto> actual = employeeService.getAll();
+    Page<InfoEmployeeDto> actual = employeeService.getAll(pageable);
 
     // then
     assertThat(actual)

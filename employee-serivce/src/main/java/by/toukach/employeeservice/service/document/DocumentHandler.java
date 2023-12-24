@@ -1,5 +1,6 @@
 package by.toukach.employeeservice.service.document;
 
+import by.toukach.employeeservice.dto.Pageable;
 import by.toukach.employeeservice.enumiration.DocumentType;
 import java.io.ByteArrayOutputStream;
 
@@ -8,7 +9,7 @@ import java.io.ByteArrayOutputStream;
  */
 public interface DocumentHandler {
 
-  ByteArrayOutputStream handle(DocumentType documentType);
+  ByteArrayOutputStream handle(Pageable pageable, DocumentType documentType);
 
   ByteArrayOutputStream handle(Long id, DocumentType documentType);
 }

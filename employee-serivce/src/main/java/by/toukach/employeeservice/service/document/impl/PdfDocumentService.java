@@ -53,10 +53,8 @@ public class PdfDocumentService implements DocumentService {
    * @return ByteArrayOutputStream с созданным документом.
    */
   @Override
-  public <I> ByteArrayOutputStream createDocumentFromObjectList(List<I> itemList) {
-    I firstItem = itemList.get(0);
-
-    List<Field> declaredFieldList = List.of(firstItem.getClass().getDeclaredFields());
+  public <I> ByteArrayOutputStream createDocumentFromObjectList(List<I> itemList, Class<I> type) {
+    List<Field> declaredFieldList = List.of(type.getDeclaredFields());
 
     PdfPTable table = new PdfPTable(declaredFieldList.size());
     table.setTotalWidth(470);

@@ -4,6 +4,8 @@ import by.toukach.employeeservice.aspect.annotation.Validated;
 import by.toukach.employeeservice.dao.Employee;
 import by.toukach.employeeservice.dto.EmployeeDto;
 import by.toukach.employeeservice.dto.InfoEmployeeDto;
+import by.toukach.employeeservice.dto.Page;
+import by.toukach.employeeservice.dto.Pageable;
 import by.toukach.employeeservice.exception.EntityNotFoundException;
 import by.toukach.employeeservice.exception.ExceptionMessage;
 import by.toukach.employeeservice.mapper.EmployeeMapper;
@@ -11,8 +13,6 @@ import by.toukach.employeeservice.repository.EmployeeRepository;
 import by.toukach.employeeservice.repository.impl.EmployeeRepositoryImpl;
 import by.toukach.employeeservice.service.employee.EmployeeService;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -67,10 +67,8 @@ public class EmployeeServiceImpl implements EmployeeService {
    * @return запрашиваемая информация о сотрудниках.
    */
   @Override
-  public List<InfoEmployeeDto> getAll() {
-    return employeeRepository.findAll().stream()
-        .map(employeeMapper::employeeToInfoEmployeeDto)
-        .collect(Collectors.toList());
+  public Page<InfoEmployeeDto> getAll(Pageable pageable) {
+    return employeeMapper.toInfoEmployeeDtoPage(employeeRepository.findAll(pageable));
   }
 
   /**

@@ -1,6 +1,8 @@
 package by.toukach.employeeservice.service.document.impl;
 
 import by.toukach.employeeservice.dto.InfoEmployeeDto;
+import by.toukach.employeeservice.dto.Page;
+import by.toukach.employeeservice.dto.Pageable;
 import by.toukach.employeeservice.enumiration.DocumentType;
 import by.toukach.employeeservice.service.document.DocumentHandler;
 import by.toukach.employeeservice.service.document.DocumentService;
@@ -11,7 +13,6 @@ import by.toukach.employeeservice.service.employee.impl.EmployeeServiceImpl;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 /**
  * Класс для обработки запросов на создание документа по сотрудникам.
@@ -42,12 +43,13 @@ public class EmployeeDocumentHandler implements DocumentHandler {
    * @return ByteArrayOutputStream с созданным документом.
    */
   @Override
-  public ByteArrayOutputStream handle(DocumentType documentType) {
-    List<InfoEmployeeDto> infoEmployeeDtoList = employeeService.getAll();
+  public ByteArrayOutputStream handle(Pageable pageable, DocumentType documentType) {
+    Page<InfoEmployeeDto> infoEmployeeDtoList = employeeService.getAll(pageable);
     DocumentService documentService = documentServiceFactory.getDocumentService(documentType);
 
     ByteArrayOutputStream documentAsByteArrayOutputStream =
-        documentService.createDocumentFromObjectList(infoEmployeeDtoList);
+        documentService.createDocumentFromObjectList(infoEmployeeDtoList.getContent(),
+            InfoEmployeeDto.class);
 
     createFile(documentAsByteArrayOutputStream, documentType);
 

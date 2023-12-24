@@ -8,4 +8,6 @@
 
   <include file="001-create-table.xml" relativeToChangelogFile="true"/>
   <include file="002-insert-employee.xml" relativeToChangelogFile="true"/>
+  <include file="003-create-table.xml" relativeToChangelogFile="true"/>
+  <include file="004-insert-user.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

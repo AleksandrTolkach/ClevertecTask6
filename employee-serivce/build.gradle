@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'war'
     id "io.freefair.lombok" version "6.5.1"
     id "io.freefair.aspectj.post-compile-weaving" version "6.4.1"
 }
@@ -29,6 +30,8 @@ ext {
     logbackVersion = '1.4.7'
     assertjVersion = '3.24.2'
     itextVersion = '5.5.13.3'
+    jakartaServletVersion = '6.0.0'
+    jwtVersion = '0.9.1'
 }
 
 dependencies {
@@ -60,6 +63,9 @@ dependencies {
     implementation group: 'org.glassfish.expressly', name: 'expressly', version: "${glassfishVersion}"
 
     implementation group: 'com.itextpdf', name: 'itextpdf', version: "${itextVersion}"
+    compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: "${jakartaServletVersion}"
+
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: "${jwtVersion}"
 
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
@@ -91,4 +97,8 @@ jar {
                 'Implementation-Version': project.version
         )
     }
+}
+
+war {
+    archiveFileName = 'api.war'
 }

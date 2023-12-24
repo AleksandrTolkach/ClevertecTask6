@@ -6,6 +6,8 @@ import by.toukach.employeeservice.aspect.annotation.CacheableRead;
 import by.toukach.employeeservice.aspect.annotation.CacheableUpdate;
 import by.toukach.employeeservice.dao.Employee;
 import by.toukach.employeeservice.dao.rowmapper.impl.EmployeeRowMapper;
+import by.toukach.employeeservice.dto.Page;
+import by.toukach.employeeservice.dto.Pageable;
 import by.toukach.employeeservice.repository.DbInitializer;
 import by.toukach.employeeservice.repository.EmployeeRepository;
 import by.toukach.employeeservice.repository.SqlRequest;
@@ -94,11 +96,17 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
    * @return список всех сотрудников.
    */
   @Override
-  public List<Employee> findAll() {
+  public Page<Employee> findAll(Pageable pageable) {
 
     JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
 
-    return jdbcTemplate.query(SqlRequest.SELECT_EMPLOYEE_SQL, rowMapper);
+    List<Employee> content = jdbcTemplate.query(
+        SqlRequest.SELECT_EMPLOYEE_SQL.formatted(pageable.getPageNumber() * pageable.getPageSize(),
+            pageable.getPageSize()), rowMapper);
+
+    Integer totalElements = jdbcTemplate.queryForObject(SqlRequest.EMPLOYEE_COUNT, int.class);
+
+    return Page.of(pageable, content, totalElements);
 
   }
 

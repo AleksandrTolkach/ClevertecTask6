@@ -22,6 +22,7 @@ public class ApplicationProperties {
   public static final String DB_DRIVER;
   public static final String DB_CHANGE_LOG_FILE;
   public static final String DB_LIQUIBASE_SCHEMA;
+  public static final boolean DB_MIGRATION_ENABLE_STATUS;
   public static final String CACHE_SIZE;
   public static final String CACHE_ALGORITHM;
   public static final String PRINT_OUT_DIRECTORY;
@@ -44,6 +45,8 @@ public class ApplicationProperties {
     DB_DRIVER = employeeServicePropertiesWrapper.getDatabase().getDriver();
     DB_CHANGE_LOG_FILE = employeeServicePropertiesWrapper.getDatabase().getChangeLogFile();
     DB_LIQUIBASE_SCHEMA = employeeServicePropertiesWrapper.getDatabase().getLiquibaseSchema();
+    DB_MIGRATION_ENABLE_STATUS =
+        Boolean.parseBoolean(employeeServicePropertiesWrapper.getDatabase().getMigrationEnable());
     CACHE_SIZE = employeeServicePropertiesWrapper.getCache().getSize();
     CACHE_ALGORITHM = employeeServicePropertiesWrapper.getCache().getAlgorithm();
     PRINT_OUT_DIRECTORY = employeeServicePropertiesWrapper.getPrint().getOutDirectory();

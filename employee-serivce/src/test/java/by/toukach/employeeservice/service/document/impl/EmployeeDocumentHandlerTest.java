@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 
 import by.toukach.employeeservice.EmployeeTestData;
 import by.toukach.employeeservice.dto.InfoEmployeeDto;
+import by.toukach.employeeservice.dto.Page;
+import by.toukach.employeeservice.dto.Pageable;
 import by.toukach.employeeservice.enumiration.DocumentType;
 import by.toukach.employeeservice.exception.EntityNotFoundException;
 import by.toukach.employeeservice.exception.ExceptionMessage;
@@ -83,20 +85,27 @@ public class EmployeeDocumentHandlerTest {
     List<InfoEmployeeDto> infoEmployeeDtoList =
         List.of(EmployeeTestData.builder().build().buildInfoEmployeeDto());
 
+    Pageable pageable = Pageable.builder()
+        .pageNumber(0)
+        .pageSize(1)
+        .build();
+    Page<InfoEmployeeDto> infoEmployeeDtoPage =
+        Page.of(pageable, infoEmployeeDtoList, infoEmployeeDtoList.size());
+
     ByteArrayOutputStream expected = new ByteArrayOutputStream();
 
-    when(employeeService.getAll())
-        .thenReturn(infoEmployeeDtoList);
+    when(employeeService.getAll(pageable))
+        .thenReturn(infoEmployeeDtoPage);
     when(documentServiceFactory.getDocumentService(DocumentType.PDF))
         .thenReturn(documentService);
-    when(documentService.createDocumentFromObjectList(infoEmployeeDtoList))
+    when(documentService.createDocumentFromObjectList(infoEmployeeDtoList, InfoEmployeeDto.class))
         .thenReturn(expected);
     doNothing()
         .when(fileManager)
         .createFile(expected, DocumentType.PDF, EmployeeTestData.FILE_NAME);
 
     // when
-    ByteArrayOutputStream actual = employeeDocumentHandler.handle(DocumentType.PDF);
+    ByteArrayOutputStream actual = employeeDocumentHandler.handle(pageable, DocumentType.PDF);
 
     // then
     assertThat(actual)

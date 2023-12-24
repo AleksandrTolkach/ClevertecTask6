@@ -20,4 +20,5 @@ public class DataBasePropertiesWrapper {
   private String driver;
   private String changeLogFile;
   private String liquibaseSchema;
+  private String migrationEnable;
 }
