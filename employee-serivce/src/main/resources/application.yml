@@ -6,6 +6,7 @@ database:
   driver: org.postgresql.Driver
   changeLogFile: db/migration/liquibase/changelog.xml
   liquibaseSchema: liquibase
+  migrationEnable: true
 cache:
   size: 3
   algorithm: LRU

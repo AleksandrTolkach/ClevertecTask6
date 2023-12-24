@@ -10,5 +10,5 @@ public interface DocumentService {
 
   <I> ByteArrayOutputStream createDocumentFromSingleObject(I item);
 
-  <I> ByteArrayOutputStream createDocumentFromObjectList(List<I> itemList);
+  <I> ByteArrayOutputStream createDocumentFromObjectList(List<I> itemList, Class<I> type);
 }

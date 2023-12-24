@@ -1,0 +1,494 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Управление сотрудниками
+  contact:
+    name: Aleksandr Tolkach
+    url: https://www.linkedin.com/in/aleksandr-tolkach/
+
+servers:
+  - url: http://{host}:{port}
+    description: custom server
+    variables:
+      host:
+        description: host name
+        default: 127.0.0.1
+      port:
+        description: port value
+        default: "8080"
+
+tags:
+  - name: "Авторизация"
+    description: Авторизация
+  - name: "Управление сотрудниками"
+    description: Управление сотрудниками
+  - name: "Управление документами"
+    description: Управление документами
+  - name: "Управление пользователями"
+    description: Управление пользователями
+
+paths:
+  /api/v1/auth/sign-up:
+    post:
+      tags:
+        - "Авторизация"
+      summary: "Регистрация в приложении"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpDto"
+      responses:
+        '201':
+          description: CREATED
+          headers:
+            Set-Cookie:
+              description: "Куки с JWT токеном"
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfoEmployeeDto'
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - "Авторизация"
+      summary: "Вход в приложение"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogInDto"
+      responses:
+        '200':
+          description: OK
+          headers:
+            Set-Cookie:
+              description: "Куки с JWT токеном"
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfoEmployeeDto'
+
+  /api/v1/auth/logout:
+    post:
+      tags:
+        - "Авторизация"
+      summary: "Выход из приложения"
+      security:
+        - jwtInCookie: []
+      responses:
+        '204':
+          description: NO CONTENT
+
+  /api/v1/employees:
+    get:
+      tags:
+        - "Управление сотрудниками"
+      summary: "Получить страницу сотрудников"
+      security:
+        - jwtInCookie: []
+      parameters:
+        - in: query
+          name: pageNumber
+          required: false
+          description: Номер страницы
+          schema:
+            type: integer
+            format: int32
+        - in: query
+          name: pageSize
+          required: false
+          description: Размер страницы
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+    post:
+      tags:
+        - "Управление сотрудниками"
+      summary: "Добавление сотрудника"
+      security:
+        - jwtInCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeDto"
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfoEmployeeDto'
+    put:
+      tags:
+        - "Управление сотрудниками"
+      summary: "Обновление сотрудника"
+      security:
+        - jwtInCookie: []
+      parameters:
+        - in: query
+          name: id
+          required: true
+          description: ID сотрудника
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeDto"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfoEmployeeDto'
+    delete:
+      tags:
+        - "Управление сотрудниками"
+      summary: "Удаление сотрудника"
+      security:
+        - jwtInCookie: []
+      parameters:
+        - in: query
+          name: id
+          required: true
+          description: ID сотрудника
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: NO CONTENT
+
+  /api/v1/documents/employees:
+    get:
+      tags:
+        - "Управление документами"
+      summary: "Получить документ по сотрудникам"
+      security:
+        - jwtInCookie: [ ]
+      parameters:
+        - in: query
+          name: pageNumber
+          required: false
+          description: Номер страницы
+          schema:
+            type: integer
+            format: int32
+        - in: query
+          name: pageSize
+          required: false
+          description: Размер страницы
+          schema:
+            type: integer
+            format: int32
+        - in: query
+          name: documentType
+          required: false
+          description: Формат документа
+          schema:
+            $ref: '#/components/schemas/DocumentType'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+                description: PDF-файл
+
+  /api/v1/documents/employees/{id}:
+    get:
+      tags:
+        - "Управление документами"
+      summary: "Получить документ по сотруднику"
+      security:
+        - jwtInCookie: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID сотрудника
+          schema:
+            type: string
+        - in: query
+          name: documentType
+          required: false
+          description: Формат документа
+          schema:
+            $ref: '#/components/schemas/DocumentType'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+                description: PDF-файл
+
+  /api/v1/users:
+    get:
+      tags:
+        - "Управление пользователями"
+      summary: "Получить список пользователей"
+      security:
+        - adminJwtInCookie: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/InfoUserDto'
+    post:
+      tags:
+        - "Управление пользователями"
+      summary: "Создать пользователя"
+      security:
+        - adminJwtInCookie: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/InfoUserDto'
+    put:
+      tags:
+        - "Управление пользователями"
+      summary: "Обновить пользователя"
+      security:
+        - adminJwtInCookie: [ ]
+      parameters:
+        - in: query
+          name: id
+          required: true
+          description: ID сотрудника
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/InfoUserDto'
+    delete:
+      tags:
+        - "Управление пользователями"
+      summary: "Удалить пользователя"
+      security:
+        - adminJwtInCookie: [ ]
+      parameters:
+        - in: query
+          name: id
+          required: true
+          description: ID сотрудника
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: NO CONTENT
+
+components:
+  schemas:
+    EmployeeDto:
+      type: object
+      required:
+        - name
+        - dateOfBirth
+        - specialization
+        - active
+      properties:
+        name:
+          description: Имя сотрудника
+          type: string
+        dateOfBirth:
+          description: Дата рождения
+          type: string
+          format: date
+        specialization:
+          description: Должность сотрудника
+          $ref: '#/components/schemas/Specialization'
+        active:
+          description: Статус сотрудника
+          type: boolean
+
+    InfoEmployeeDto:
+      type: object
+      properties:
+        id:
+          description: ID сотрудника
+          type: integer
+          format: int64
+        createdAt:
+          description: Время создания сотрудника
+          type: string
+          format: date-time
+        name:
+          description: Имя сотрудника
+          type: string
+        dateOfBirth:
+          description: Дата рождения
+          type: string
+          format: date
+        specialization:
+          description: Должность сотрудника
+          $ref: '#/components/schemas/Specialization'
+        active:
+          description: Статус сотрудника
+          type: boolean
+
+    UserDto:
+      type: object
+      required:
+        - name
+        - password
+        - role
+      properties:
+        name:
+          description: Имя пользователя
+          type: string
+        password:
+          description: Пароль пользователя
+          type: string
+        role:
+          description: Роль пользователя
+          $ref: '#/components/schemas/UserRole'
+
+    InfoUserDto:
+      type: object
+      properties:
+        id:
+          description: ID пользователя
+          type: integer
+          format: int64
+        createdAt:
+          description: Время создания пользователя
+          type: string
+          format: date-time
+        name:
+          description: Имя пользователя
+          type: string
+        role:
+          description: Роль пользователя
+          $ref: '#/components/schemas/UserRole'
+
+    LogInDto:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          description: Имя пользователя
+          type: string
+        password:
+          description: Пароль пользователя
+          type: string
+
+    SignUpDto:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          description: Имя пользователя
+          type: string
+        password:
+          description: Пароль пользователя
+          type: string
+
+    Page:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          description: Номер страницы
+        pageSize:
+          type: integer
+          description: Размер страницы
+        totalPages:
+          type: integer
+          description: Общее количество страниц
+        totalElements:
+          type: integer
+          description: Общее количество элементов
+        content:
+          type: array
+          description: Содержимое страницы
+          items:
+            $ref: '#/components/schemas/InfoEmployeeDto'
+
+    Specialization:
+      description: Должность
+      type: string
+      enum:
+        - ENGINEER
+        - DEVELOPER
+        - BUSINESS_ANALYST
+
+    UserRole:
+      description: Роль
+      type: string
+      enum:
+        - ADMIN
+        - USER
+
+    DocumentType:
+      description: Формат документа
+      type: string
+      enum:
+        - PDF
+
+  securitySchemes:
+    jwtInCookie:
+      type: apiKey
+      in: cookie
+      name: accessCookie
+      bearerFormat: JWT
+    adminJwtInCookie:
+      type: apiKey
+      in: cookie
+      name: accessCookie
+      bearerFormat: JWT

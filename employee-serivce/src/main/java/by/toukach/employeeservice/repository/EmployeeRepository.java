@@ -1,7 +1,8 @@
 package by.toukach.employeeservice.repository;
 
 import by.toukach.employeeservice.dao.Employee;
-import java.util.List;
+import by.toukach.employeeservice.dto.Page;
+import by.toukach.employeeservice.dto.Pageable;
 import java.util.Optional;
 
 /**
@@ -30,7 +31,7 @@ public interface EmployeeRepository {
    *
    * @return список всех сотрудников.
    */
-  List<Employee> findAll();
+  Page<Employee> findAll(Pageable pageable);
 
   /**
    * Метод для обновления сотрудника в БД по его id.

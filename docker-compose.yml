@@ -9,6 +9,11 @@ services:
       - "5434:5432"
     networks:
       - employee-network
+  swagger-ui:
+    build: swagger-ui
+    image: employee_swagger-ui:1.0.0
+    ports:
+      - "81:8080"
 
 networks:
   employee-network:

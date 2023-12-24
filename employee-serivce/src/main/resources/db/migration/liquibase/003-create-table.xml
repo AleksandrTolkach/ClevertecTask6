@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.10.xsd">
+
+  <changeSet id="003-create-table" author="toukach">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="users" schemaName="application"/>
+      </not>
+    </preConditions>
+
+    <createSequence
+      schemaName="application"
+      sequenceName="users_id_seq"
+      incrementBy="1"
+      maxValue="10000"
+      startValue="1"
+    />
+
+    <createTable tableName="users" schemaName="application">
+      <column name="id" type="BIGINT" defaultValueComputed="nextval('application.users_id_seq')">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="created_at" type="TIMESTAMP"/>
+      <column name="name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="password" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="role" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <rollback>
+      <delete tableName="users" schemaName="application"/>
+      <dropTable tableName="users" schemaName="application"/>
+      <dropSequence sequenceName="users_id_seq" schemaName="application"/>
+    </rollback>
+  </changeSet>
+</databaseChangeLog>

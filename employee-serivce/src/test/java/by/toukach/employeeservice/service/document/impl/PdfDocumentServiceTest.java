@@ -49,7 +49,7 @@ public class PdfDocumentServiceTest {
 
     // when
     ByteArrayOutputStream actual =
-        pdfDocumentService.createDocumentFromObjectList(infoEmployeeDtoList);
+        pdfDocumentService.createDocumentFromObjectList(infoEmployeeDtoList, InfoEmployeeDto.class);
 
     // then
     assertThat(actual.size())

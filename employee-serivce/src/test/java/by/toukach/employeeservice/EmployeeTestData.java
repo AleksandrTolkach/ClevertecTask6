@@ -4,8 +4,6 @@ import by.toukach.employeeservice.dao.Employee;
 import by.toukach.employeeservice.dto.EmployeeDto;
 import by.toukach.employeeservice.dto.InfoEmployeeDto;
 import by.toukach.employeeservice.enumiration.Specialization;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -27,7 +25,8 @@ public class EmployeeTestData {
   private long id = 1L;
 
   @Builder.Default
-  private LocalDateTime createdAt = LocalDateTime.of(1970, 10, 10, 10, 10, 10);
+  private LocalDateTime createdAt =
+      LocalDateTime.of(1970, 10, 10, 10, 10, 10);
 
   @Builder.Default
   private String name = "Олег";
