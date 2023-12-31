@@ -5,26 +5,26 @@ import by.toukach.employeeservice.enumiration.DocumentType;
 import by.toukach.employeeservice.exception.ExceptionMessage;
 import by.toukach.employeeservice.exception.ServletException;
 import by.toukach.employeeservice.service.document.DocumentHandler;
-import by.toukach.employeeservice.service.document.impl.EmployeeDocumentHandler;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.function.Predicate;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * Класс для работы с запросами по работе с документом по сотруднику по его id.
  */
+@Component
+@RequiredArgsConstructor
 public class DocumentByIdServlet implements DocumentServlet {
 
   private static final String DOCUMENT_TYPE_PARAM = "documentType";
 
   private final DocumentHandler documentHandler;
-
-  public DocumentByIdServlet() {
-    this.documentHandler = new EmployeeDocumentHandler();
-  }
 
   /**
    * Метод для обработки запроса.
@@ -53,5 +53,15 @@ public class DocumentByIdServlet implements DocumentServlet {
     } catch (IOException e) {
       throw new ServletException(ExceptionMessage.SEND_FILE, e);
     }
+  }
+
+  /**
+   * Метод для генерации предиката для проверки возможности обработки URL.
+   *
+   * @return возвращает предикат.
+   */
+  @Override
+  public Predicate<String> checkUrl() {
+    return url -> !url.endsWith("employees");
   }
 }

@@ -1,33 +1,28 @@
 package by.toukach.employeeservice.repository.impl;
 
 import by.toukach.employeeservice.dao.User;
-import by.toukach.employeeservice.dao.rowmapper.impl.UserRowMapper;
-import by.toukach.employeeservice.repository.DbInitializer;
 import by.toukach.employeeservice.repository.SqlRequest;
 import by.toukach.employeeservice.repository.UserRepository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
 /**
  * Класс для работы с сущностью пользователя в БД.
  */
+@Repository
+@RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
 
-  private static final UserRepository instance = new UserRepositoryImpl();
-
-  private final DbInitializer dbInitializer;
+  private final JdbcTemplate jdbcTemplate;
   private final RowMapper<User> rowMapper;
-
-  private UserRepositoryImpl() {
-    dbInitializer = DbInitializerImpl.getInstance();
-    rowMapper = UserRowMapper.getInstance();
-  }
 
   /**
    * Сохранение пользователя в БД.
@@ -37,8 +32,6 @@ public class UserRepositoryImpl implements UserRepository {
    */
   @Override
   public User save(User user) {
-
-    JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
 
     KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -67,7 +60,6 @@ public class UserRepositoryImpl implements UserRepository {
    */
   @Override
   public List<User> findAll() {
-    JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
     return jdbcTemplate.query(SqlRequest.SELECT_USERS_SQL, rowMapper);
   }
 
@@ -79,8 +71,6 @@ public class UserRepositoryImpl implements UserRepository {
    */
   @Override
   public Optional<User> findById(Long id) {
-
-    JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
 
     List<User> query =
         jdbcTemplate.query(SqlRequest.SELECT_USER_BY_ID_SQL.formatted(id), rowMapper);
@@ -98,8 +88,6 @@ public class UserRepositoryImpl implements UserRepository {
   @Override
   public Optional<User> findByUsername(String username) {
 
-    JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
-
     List<User> query =
         jdbcTemplate.query(SqlRequest.SELECT_USER_BY_USERNAME_SQL.formatted(username), rowMapper);
 
@@ -116,8 +104,6 @@ public class UserRepositoryImpl implements UserRepository {
    */
   @Override
   public User update(Long id, User user) {
-
-    JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
 
     int updatedRowCount = jdbcTemplate.update(connection -> {
       PreparedStatement statement = connection.prepareStatement(SqlRequest.UPDATE_USER_SQL);
@@ -141,8 +127,6 @@ public class UserRepositoryImpl implements UserRepository {
   @Override
   public void delete(Long id) {
 
-    JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
-
     jdbcTemplate.update(connection -> {
       PreparedStatement statement = connection.prepareStatement(SqlRequest.DELETE_USER_SQL);
 
@@ -150,9 +134,5 @@ public class UserRepositoryImpl implements UserRepository {
 
       return statement;
     });
-  }
-
-  public static UserRepository getInstance() {
-    return instance;
   }
 }

@@ -10,25 +10,21 @@ import by.toukach.employeeservice.exception.EntityNotFoundException;
 import by.toukach.employeeservice.exception.ExceptionMessage;
 import by.toukach.employeeservice.mapper.EmployeeMapper;
 import by.toukach.employeeservice.repository.EmployeeRepository;
-import by.toukach.employeeservice.repository.impl.EmployeeRepositoryImpl;
 import by.toukach.employeeservice.service.employee.EmployeeService;
 import java.time.LocalDateTime;
-import org.mapstruct.factory.Mappers;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Класс для работы с сотрудниками.
  */
+@Service
+@RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
-
-  private static final EmployeeService instance = new EmployeeServiceImpl();
 
   private final EmployeeRepository employeeRepository;
   private final EmployeeMapper employeeMapper;
-
-  private EmployeeServiceImpl() {
-    employeeRepository = EmployeeRepositoryImpl.getInstance();
-    employeeMapper = Mappers.getMapper(EmployeeMapper.class);
-  }
 
   /**
    * Метод для создания сотрудника в приложении.
@@ -38,6 +34,7 @@ public class EmployeeServiceImpl implements EmployeeService {
    */
   @Override
   @Validated
+  @Transactional
   public InfoEmployeeDto create(EmployeeDto employeeDto) {
 
     Employee employee = employeeMapper.employeeDtoToEmployee(employeeDto);
@@ -80,6 +77,7 @@ public class EmployeeServiceImpl implements EmployeeService {
    */
   @Override
   @Validated
+  @Transactional
   public InfoEmployeeDto update(Long id, EmployeeDto employeeDto) {
 
     Employee employee = employeeRepository.findById(id)
@@ -103,14 +101,5 @@ public class EmployeeServiceImpl implements EmployeeService {
   @Validated
   public void delete(Long id) {
     employeeRepository.delete(id);
-  }
-
-  /**
-   * Метод для получения EmployeeService.
-   *
-   * @return запрашиваемый EmployeeService.
-   */
-  public static EmployeeService getInstance() {
-    return instance;
   }
 }

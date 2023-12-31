@@ -9,14 +9,15 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
 /**
  * Класс для создания User из ResultSet.
  */
+@Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserRowMapper implements RowMapper<User> {
 
-  private static final UserRowMapper instance = new UserRowMapper();
   private static final String CREATED_AT_FIELD = "created_at";
 
   @Override
@@ -28,9 +29,5 @@ public class UserRowMapper implements RowMapper<User> {
         .password(resultSet.getString(Fields.password))
         .role(UserRole.valueOf(resultSet.getString(Fields.role)))
         .build();
-  }
-
-  public static RowMapper<User> getInstance() {
-    return instance;
   }
 }

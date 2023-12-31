@@ -1,14 +1,11 @@
 package by.toukach.employeeservice.controller.filter;
 
 import by.toukach.employeeservice.exception.ExceptionMessage;
-import by.toukach.employeeservice.security.Authentication;
-import by.toukach.employeeservice.security.AuthenticationManager;
-import by.toukach.employeeservice.security.impl.AuthenticationManagerImpl;
 import by.toukach.employeeservice.util.CookieUtil;
 import by.toukach.employeeservice.util.JwtUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -16,7 +13,12 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * Класс для ограничения доступа к приложению не авторизованным пользователям.
@@ -24,10 +26,14 @@ import org.apache.commons.lang3.StringUtils;
 @WebFilter(filterName = "filter1")
 public class SecurityFilter implements Filter {
 
-  private final AuthenticationManager authenticationManager;
+  private UserDetailsService userDetailsService;
 
-  public SecurityFilter() {
-    authenticationManager = AuthenticationManagerImpl.getInstance();
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {
+    Filter.super.init(filterConfig);
+
+    SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
+        filterConfig.getServletContext());
   }
 
   @Override
@@ -39,23 +45,29 @@ public class SecurityFilter implements Filter {
 
     String accessToken = CookieUtil.getAccessTokenFromCookies(req);
 
-    String login = null;
-    try {
-      login = JwtUtil.getUsernameFromJwtToken(accessToken);
-    } catch (ExpiredJwtException e) {
-      resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, ExceptionMessage.SESSION_EXPIRED);
-      return;
-    }
+    if (accessToken != null && JwtUtil.validateJwtToken(accessToken)) {
+      String username = JwtUtil.getUsernameFromJwtToken(accessToken);
+      UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-    if (!StringUtils.isBlank(login)) {
-      Authentication authentication = authenticationManager.getAuthentication(login);
-      if (authentication.isAuthenticated()) {
-        filterChain.doFilter(servletRequest, servletResponse);
-      } else {
-        resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, ExceptionMessage.LOGIN_OFFER);
-      }
+      UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+          userDetails, null,
+          userDetails.getAuthorities());
+      SecurityContextHolder.getContext().setAuthentication(authentication);
+
+      filterChain.doFilter(req, resp);
+
     } else {
       resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, ExceptionMessage.LOGIN_OFFER);
     }
+  }
+
+  /**
+   * Метод для внедрения бина {@link UserDetailsService}.
+   *
+   * @param userDetailsService бин для внедрения.
+   */
+  @Autowired
+  public void setUserDetailsService(UserDetailsService userDetailsService) {
+    this.userDetailsService = userDetailsService;
   }
 }

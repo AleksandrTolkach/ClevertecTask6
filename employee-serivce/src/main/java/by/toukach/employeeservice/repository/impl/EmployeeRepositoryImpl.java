@@ -15,27 +15,24 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
 /**
  * Класс для работы с сущностью сотрудника в БД.
  */
 @Slf4j
+@Repository
+@RequiredArgsConstructor
 public class EmployeeRepositoryImpl implements EmployeeRepository {
 
-  private static final EmployeeRepository instance = new EmployeeRepositoryImpl();
-
-  private final DbInitializer dbInitializer;
+  private final JdbcTemplate jdbcTemplate;
   private final RowMapper<Employee> rowMapper;
-
-  private EmployeeRepositoryImpl() {
-    dbInitializer = DbInitializerImpl.getInstance();
-    rowMapper = EmployeeRowMapper.getInstance();
-  }
 
   /**
    * Метод для сохранения сотрудника в БД.
@@ -46,8 +43,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
   @Override
   @CacheableCreate
   public Employee save(Employee employee) {
-
-    JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
 
     KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -81,8 +76,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
   @CacheableRead
   public Optional<Employee> findById(Long id) {
 
-    JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
-
     List<Employee> query = jdbcTemplate.query(
         String.format(SqlRequest.SELECT_EMPLOYEE_BY_ID_SQL, id), rowMapper);
 
@@ -97,8 +90,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
    */
   @Override
   public Page<Employee> findAll(Pageable pageable) {
-
-    JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
 
     List<Employee> content = jdbcTemplate.query(
         SqlRequest.SELECT_EMPLOYEE_SQL.formatted(pageable.getPageNumber() * pageable.getPageSize(),
@@ -120,8 +111,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
   @Override
   @CacheableUpdate
   public Optional<Employee> update(Long id, Employee employee) {
-
-    JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
 
     int updatedRows = jdbcTemplate.update(connection -> {
       PreparedStatement statement =
@@ -147,7 +136,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
   @Override
   @CacheableDelete
   public void delete(Long id) {
-    JdbcTemplate jdbcTemplate = dbInitializer.getJdbcTemplate();
 
     jdbcTemplate.update(connection -> {
       PreparedStatement statement = connection.prepareStatement(SqlRequest.DELETE_EMPLOYEE_SQL);
@@ -156,9 +144,5 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 
       return statement;
     });
-  }
-
-  public static EmployeeRepository getInstance() {
-    return instance;
   }
 }

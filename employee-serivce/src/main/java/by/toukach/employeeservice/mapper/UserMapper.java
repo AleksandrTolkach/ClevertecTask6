@@ -11,7 +11,7 @@ import org.mapstruct.MappingTarget;
  * Интерфейс для преобразования {@link User} в {@link InfoUserDto},
  * {@link UserDto} в {@link User} и наоборот.
  */
-@Mapper
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
   /**

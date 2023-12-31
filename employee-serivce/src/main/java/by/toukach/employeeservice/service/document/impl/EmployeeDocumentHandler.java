@@ -9,14 +9,17 @@ import by.toukach.employeeservice.service.document.DocumentService;
 import by.toukach.employeeservice.service.document.DocumentServiceFactory;
 import by.toukach.employeeservice.service.document.FileManager;
 import by.toukach.employeeservice.service.employee.EmployeeService;
-import by.toukach.employeeservice.service.employee.impl.EmployeeServiceImpl;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 /**
  * Класс для обработки запросов на создание документа по сотрудникам.
  */
+@Service
+@RequiredArgsConstructor
 public class EmployeeDocumentHandler implements DocumentHandler {
 
   private static final String FILE_NAME = "employee_%s";
@@ -26,15 +29,6 @@ public class EmployeeDocumentHandler implements DocumentHandler {
   private final EmployeeService employeeService;
   private final DocumentServiceFactory documentServiceFactory;
   private final FileManager fileManager;
-
-  /**
-   * Конструктор для создания обработчика.
-   */
-  public EmployeeDocumentHandler() {
-    employeeService = EmployeeServiceImpl.getInstance();
-    documentServiceFactory = DocumentServiceFactoryImpl.getInstance();
-    fileManager = FileManagerImpl.getInstance();
-  }
 
   /**
    * Метод для обработки запроса на создание документа по сотрудникам.

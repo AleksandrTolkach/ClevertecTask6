@@ -8,7 +8,7 @@
     <insert tableName="users" schemaName="application">
       <column name="created_at" value="1970-10-10T10:10:10"/>
       <column name="name" value="admin"/>
-      <column name="password" value="admin"/>
+      <column name="password" value="$2a$10$E6xrU/H.THzvztgSxDNwB.PoQx4mV7UfU7PY0.NrI4cuWayXr04j."/>
       <column name="role" value="ADMIN"/>
     </insert>
     <rollback/>

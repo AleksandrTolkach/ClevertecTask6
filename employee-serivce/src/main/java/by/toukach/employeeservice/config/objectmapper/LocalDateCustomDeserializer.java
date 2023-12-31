@@ -1,6 +1,5 @@
 package by.toukach.employeeservice.config.objectmapper;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -21,7 +20,7 @@ public class LocalDateCustomDeserializer extends StdDeserializer<LocalDate> {
 
   @Override
   public LocalDate deserialize(JsonParser jsonParser,
-      DeserializationContext deserializationContext) throws IOException, JacksonException {
+      DeserializationContext deserializationContext) throws IOException {
     String valueAsString = jsonParser.getValueAsString();
     return LocalDate.parse(valueAsString,
         DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));

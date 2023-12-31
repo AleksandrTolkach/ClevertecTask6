@@ -1,10 +1,11 @@
 package by.toukach.employeeservice.service.document.impl;
 
+import by.toukach.employeeservice.config.ApplicationProperty;
+import by.toukach.employeeservice.enumiration.DocumentType;
 import by.toukach.employeeservice.exception.ExceptionMessage;
 import by.toukach.employeeservice.exception.FileException;
 import by.toukach.employeeservice.exception.ReflectionException;
 import by.toukach.employeeservice.service.document.DocumentService;
-import by.toukach.employeeservice.util.property.ApplicationProperties;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
@@ -19,11 +20,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 /**
  * Класс для создания PDF документа.
  */
+@Service
+@RequiredArgsConstructor
 public class PdfDocumentService implements DocumentService {
+
+  private final ApplicationProperty applicationProperty;
 
   /**
    * Метод для создания PDF документа по переданному объекту.
@@ -66,11 +73,21 @@ public class PdfDocumentService implements DocumentService {
     return prepareTable(table);
   }
 
+  /**
+   * Метод для получения формата документа, с которым работает сервис.
+   *
+   * @return запрашиваемый формат.
+   */
+  @Override
+  public DocumentType getDocumentType() {
+    return DocumentType.PDF;
+  }
+
   private void createHeader(PdfPTable table, List<Field> declaredFieldList) {
     declaredFieldList.forEach(columnTitle -> {
       PdfPCell columnHeaderCell = new PdfPCell();
 
-      Font cellFont = FontFactory.getFont(ApplicationProperties.PRINT_FONT_FILE_PATH,
+      Font cellFont = FontFactory.getFont(applicationProperty.getPrintFontFilePath(),
           BaseFont.IDENTITY_H, true, 10);
 
       columnHeaderCell.setPhrase(new Phrase(columnTitle.getName(), cellFont));
@@ -93,7 +110,7 @@ public class PdfDocumentService implements DocumentService {
             String.format(ExceptionMessage.FILED_ACCESS, columnBody.getName()), e);
       }
 
-      Font cellFont = FontFactory.getFont(ApplicationProperties.PRINT_FONT_FILE_PATH,
+      Font cellFont = FontFactory.getFont(applicationProperty.getPrintFontFilePath(),
           BaseFont.IDENTITY_H, true, 8);
 
       PdfPCell cell = new PdfPCell(new Phrase(fieldValue.toString(), cellFont));
@@ -107,7 +124,7 @@ public class PdfDocumentService implements DocumentService {
     try {
       ByteArrayOutputStream result = new ByteArrayOutputStream();
 
-      PdfReader reader = new PdfReader(ApplicationProperties.PRINT_TEMPLATE_FILE_PATH);
+      PdfReader reader = new PdfReader(applicationProperty.getPrintTemplateFilePath());
       stamper = new PdfStamper(reader, result);
       PdfContentByte content = stamper.getOverContent(1);
 

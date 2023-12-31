@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,13 +21,9 @@ import by.toukach.employeeservice.mapper.EmployeeMapper;
 import by.toukach.employeeservice.repository.EmployeeRepository;
 import by.toukach.employeeservice.repository.impl.EmployeeRepositoryImpl;
 import by.toukach.employeeservice.util.ValidationMessage;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,29 +45,6 @@ public class EmployeeServiceImplTest {
 
   @Mock
   private EmployeeMapper employeeMapper;
-
-  private MockedStatic<EmployeeRepositoryImpl> employeeRepositoryMockedStatic;
-
-  @BeforeEach
-  public void setUp()
-      throws NoSuchMethodException, InvocationTargetException, InstantiationException,
-      IllegalAccessException {
-    employeeRepositoryMockedStatic = mockStatic(EmployeeRepositoryImpl.class);
-    employeeRepositoryMockedStatic
-        .when(EmployeeRepositoryImpl::getInstance)
-        .thenReturn(employeeRepository);
-
-    Constructor<EmployeeServiceImpl> privateConstructor = EmployeeServiceImpl.class
-        .getDeclaredConstructor();
-    privateConstructor.setAccessible(true);
-
-    employeeService = privateConstructor.newInstance();
-  }
-
-  @AfterEach
-  public void cleanUp() {
-    employeeRepositoryMockedStatic.close();
-  }
 
   @Test
   public void createTestShouldCreateEmployee() {

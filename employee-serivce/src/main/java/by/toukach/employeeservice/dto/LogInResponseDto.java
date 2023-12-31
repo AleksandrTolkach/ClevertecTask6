@@ -1,18 +1,21 @@
 package by.toukach.employeeservice.dto;
 
-import by.toukach.employeeservice.security.Authentication;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * Класс представляющий DTO для ответа на LogIn запрос.
  */
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
-public class LogInDtoResponse {
+@FieldNameConstants
+public class LogInResponseDto {
 
-  private Authentication authentication;
+  private String accessToken;
   private InfoUserDto infoUserDto;
 }
