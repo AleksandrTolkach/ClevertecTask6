@@ -39,6 +39,15 @@ public class ValidationExceptionList extends RuntimeException {
     return errorMap.isEmpty();
   }
 
+  /**
+   * Метод для получения Map с ошибками.
+   *
+   * @return запрашиваемая Map.
+   */
+  public Map<String, List<String>> getErrorMap() {
+    return errorMap;
+  }
+
   @Override
   public String getMessage() {
     return errorMap.toString();

@@ -1,5 +1,6 @@
 package by.toukach.employeeservice.service.cache;
 
+import by.toukach.employeeservice.enumiration.CacheAlgorithm;
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,4 +23,6 @@ public interface CacheService<I, C> {
   Map<I, C> getCacheContent();
 
   void clearCache();
+
+  CacheAlgorithm getCacheAlgorithm();
 }

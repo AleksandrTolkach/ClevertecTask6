@@ -1,38 +1,39 @@
 package by.toukach.employeeservice.service.document.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import by.toukach.employeeservice.EmployeeTestData;
+import by.toukach.employeeservice.config.ApplicationProperty;
 import by.toukach.employeeservice.enumiration.DocumentType;
-import by.toukach.employeeservice.service.document.FileManager;
-import by.toukach.employeeservice.util.property.ApplicationProperties;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class FileManagerImplTest {
 
-  private FileManager fileManager;
-  private final Path testPdfDirectoryPath = Paths.get(ApplicationProperties.PRINT_OUT_DIRECTORY);
+  private static final String PRINT_OUT_DIRECTORY = "file";
+
+  @InjectMocks
+  private FileManagerImpl fileManager;
+
+  @Mock
+  private ApplicationProperty applicationProperty;
+
+  private final Path testPdfDirectoryPath = Paths.get(PRINT_OUT_DIRECTORY);
   private final File pdfOutDirectory = new File(testPdfDirectoryPath.toString());
-
-  @BeforeEach
-  public void setUp() throws NoSuchMethodException, InvocationTargetException,
-      InstantiationException, IllegalAccessException {
-
-    Constructor<FileManagerImpl> privateConstructor =
-        FileManagerImpl.class.getDeclaredConstructor();
-    privateConstructor.setAccessible(true);
-
-    fileManager = privateConstructor.newInstance();
-  }
 
   @AfterEach
   public void cleanUp() {
@@ -45,6 +46,9 @@ public class FileManagerImplTest {
   public void createFileTestShouldCreateFile() {
     // given
     ByteArrayOutputStream data = new ByteArrayOutputStream();
+
+    when(applicationProperty.getPrintOutDirectory())
+        .thenReturn(PRINT_OUT_DIRECTORY);
 
     // when
     fileManager.createFile(data, DocumentType.PDF, EmployeeTestData.FILE_NAME);

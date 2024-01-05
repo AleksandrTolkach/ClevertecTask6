@@ -1,10 +1,11 @@
 package by.toukach.employeeservice.service.cache.impl;
 
+import by.toukach.employeeservice.config.ApplicationProperty;
+import by.toukach.employeeservice.enumiration.CacheAlgorithm;
 import by.toukach.employeeservice.service.cache.CacheService;
 import by.toukach.employeeservice.util.predicate.NegatedWrappedIdPredicate;
 import by.toukach.employeeservice.util.predicate.WrappedIdPredicate;
 import by.toukach.employeeservice.util.predicate.WrappedItemPredicate;
-import by.toukach.employeeservice.util.property.ApplicationProperties;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,23 +14,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 /**
  * Класс для кэширования сущностей.
  *
  * @param <I> сущность для кэширования.
  */
+@Service
+@RequiredArgsConstructor
 public class LruCacheService<I> implements CacheService<I, LocalDateTime> {
 
-  private static final LruCacheService<?> instance = new LruCacheService<>();
-
-  private Map<I, LocalDateTime> cacheMap;
-  private final long cacheSize;
-
-  private LruCacheService() {
-    cacheMap = new HashMap<>();
-    cacheSize = Long.parseLong(ApplicationProperties.CACHE_SIZE);
-  }
+  private Map<I, LocalDateTime> cacheMap = new HashMap<>();
+  private final ApplicationProperty applicationProperty;
 
   /**
    * Метод для получения закэшированной сущности.
@@ -56,8 +54,9 @@ public class LruCacheService<I> implements CacheService<I, LocalDateTime> {
    */
   @Override
   public void create(I item) {
+    Integer cacheSize = Integer.valueOf(applicationProperty.getCacheSize());
 
-    if (cacheMap.size() >= cacheSize) {
+    if (cacheSize.compareTo(cacheMap.size()) <= 0) {
       cacheMap.entrySet().stream()
           .max(Entry.comparingByValue(Comparator.reverseOrder()))
           .map(Entry::getKey)
@@ -118,12 +117,12 @@ public class LruCacheService<I> implements CacheService<I, LocalDateTime> {
   }
 
   /**
-   * Метод для получения CacheService.
+   * Метод для получения типа алгоритма, по которому работает сервис.
    *
-   * @param <I> сущность кэширования.
-   * @return запрашиваемый CacheSerivce.
+   * @return запрашиваемый тип.
    */
-  public static <I> LruCacheService<I> getInstance() {
-    return (LruCacheService<I>) instance;
+  @Override
+  public CacheAlgorithm getCacheAlgorithm() {
+    return CacheAlgorithm.LRU;
   }
 }

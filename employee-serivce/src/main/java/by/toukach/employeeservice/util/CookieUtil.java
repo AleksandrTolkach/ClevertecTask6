@@ -3,6 +3,7 @@ package by.toukach.employeeservice.util;
 import io.jsonwebtoken.lang.Assert;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Base64;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -23,8 +24,10 @@ public class CookieUtil {
    * @param token передаваемый токен.
    * @return запрашиваемая Cookie.
    */
+
   public static Cookie generateAccessCookie(String token) {
-    Cookie cookie = new Cookie(ACCESS_COOKIE_NAME, token);
+    Cookie cookie = new Cookie(ACCESS_COOKIE_NAME,
+        Base64.getEncoder().encodeToString(token.getBytes()));
     cookie.setPath(PATH);
     cookie.setMaxAge(ACCESS_COOKIE_DURATION_SEC);
     cookie.setHttpOnly(true);
@@ -49,7 +52,8 @@ public class CookieUtil {
       for (int var5 = 0; var5 < var4; ++var5) {
         Cookie cookie = var3[var5];
         if (ACCESS_COOKIE_NAME.equals(cookie.getName())) {
-          return cookie.getValue();
+          String value = cookie.getValue();
+          return new String(Base64.getDecoder().decode(value));
         }
       }
     }

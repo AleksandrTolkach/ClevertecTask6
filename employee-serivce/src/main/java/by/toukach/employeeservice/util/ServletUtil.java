@@ -22,7 +22,7 @@ public class ServletUtil {
    *
    * @param req HTTP запрос.
    * @param resp HTTP ответ.
-   * @return полученный idid.
+   * @return полученный id.
    * @throws IOException выбрасывается при некорректной работе метода по отправке ошибок.
    */
   public static Long getIdFromRequest(HttpServletRequest req, HttpServletResponse resp)

@@ -1,9 +1,11 @@
 package by.toukach.employeeservice.service.cache.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import by.toukach.employeeservice.EmployeeTestData;
 import by.toukach.employeeservice.ThreadException;
+import by.toukach.employeeservice.config.ApplicationProperty;
 import by.toukach.employeeservice.dao.Employee;
 import by.toukach.employeeservice.enumiration.Specialization;
 import java.lang.reflect.Constructor;
@@ -19,29 +21,35 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class LruCacheServiceTest {
 
+  private static final String CACHE_SIZE = "3";
+
+  @InjectMocks
   private LruCacheService<Employee> cacheService;
 
-  @BeforeEach
-  public void setUp()
-      throws NoSuchMethodException, InvocationTargetException, InstantiationException,
-      IllegalAccessException {
-
-    Constructor<LruCacheService> privateConstructor = LruCacheService.class
-        .getDeclaredConstructor();
-    privateConstructor.setAccessible(true);
-
-    cacheService = privateConstructor.newInstance();
-  }
+  @Mock
+  private ApplicationProperty applicationProperty;
 
   @Test
   public void readTestShouldReturnOptionalEmployee() {
     // given
+    when(applicationProperty.getCacheSize())
+        .thenReturn(CACHE_SIZE);
+
     Employee employee = EmployeeTestData.builder()
         .build()
         .buildEmployee();
+
     cacheService.create(employee);
 
     // when
@@ -56,6 +64,9 @@ public class LruCacheServiceTest {
   @Test
   public void readTestShouldReturnEmptyOptionalWhenEmployeeNotExist() {
     // given
+    when(applicationProperty.getCacheSize())
+        .thenReturn(CACHE_SIZE);
+
     Optional<Employee> expected = Optional.empty();
 
     // when
@@ -69,6 +80,9 @@ public class LruCacheServiceTest {
   @Test
   public void createTestShouldCreateEmployee() {
     // given
+    when(applicationProperty.getCacheSize())
+        .thenReturn(CACHE_SIZE);
+
     Employee employee = EmployeeTestData.builder()
         .build()
         .buildEmployee();
@@ -88,6 +102,9 @@ public class LruCacheServiceTest {
   @Test
   public void createTestShouldRemoveOldestEmployeeFromCache() {
     // given
+    when(applicationProperty.getCacheSize())
+        .thenReturn(CACHE_SIZE);
+
     Map<Employee, LocalDateTime> expected = fillInCacheMap();
 
     Employee employeeToDelete = expected.entrySet().stream()
@@ -115,6 +132,9 @@ public class LruCacheServiceTest {
   @Test
   public void updateTestShouldUpdateEmployee() {
     // given
+    when(applicationProperty.getCacheSize())
+        .thenReturn(CACHE_SIZE);
+
     Map<Employee, LocalDateTime> expected = fillInCacheMap();
 
     Employee employeeToUpdate = expected.keySet().stream()
@@ -139,6 +159,9 @@ public class LruCacheServiceTest {
   @Test
   public void updateTestShouldCreateEmployeeIfNotExist() {
     // given
+    when(applicationProperty.getCacheSize())
+        .thenReturn(CACHE_SIZE);
+
     Employee employee = EmployeeTestData.builder().build().buildEmployee();
 
     Map<Employee, LocalDateTime> expected = new HashMap<>();
@@ -156,6 +179,9 @@ public class LruCacheServiceTest {
   @Test
   public void deleteTestShouldDeleteEmployee() {
     // given
+    when(applicationProperty.getCacheSize())
+        .thenReturn(CACHE_SIZE);
+
     Map<Employee, LocalDateTime> expected = fillInCacheMap();
 
     expected = expected.entrySet().stream()
@@ -175,6 +201,9 @@ public class LruCacheServiceTest {
   @Test
   public void getCacheContentTestShouldReturnCacheContent() {
     // given
+    when(applicationProperty.getCacheSize())
+        .thenReturn(CACHE_SIZE);
+
     Map<Employee, LocalDateTime> expected = fillInCacheMap();
 
     // when
@@ -188,6 +217,9 @@ public class LruCacheServiceTest {
   @Test
   public void clearCacheTestShouldRemoveAllEntitiesInCache() {
     // given
+    when(applicationProperty.getCacheSize())
+        .thenReturn(CACHE_SIZE);
+
     fillInCacheMap();
     Map<Employee, Long> expected = new HashMap<>();
 

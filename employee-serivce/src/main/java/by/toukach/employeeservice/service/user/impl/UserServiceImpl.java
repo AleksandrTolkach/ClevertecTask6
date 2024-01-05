@@ -10,26 +10,24 @@ import by.toukach.employeeservice.exception.EntityNotFoundException;
 import by.toukach.employeeservice.exception.ExceptionMessage;
 import by.toukach.employeeservice.mapper.UserMapper;
 import by.toukach.employeeservice.repository.UserRepository;
-import by.toukach.employeeservice.repository.impl.UserRepositoryImpl;
 import by.toukach.employeeservice.service.user.UserService;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.mapstruct.factory.Mappers;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Класс для работы с сотрудниками.
  */
+@Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
-  private static final UserService instance = new UserServiceImpl();
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
-
-  private UserServiceImpl() {
-    userRepository = UserRepositoryImpl.getInstance();
-    userMapper = Mappers.getMapper(UserMapper.class);
-  }
+  private final PasswordEncoder passwordEncoder;
 
   /**
    * Метод для создания пользователя в приложении.
@@ -39,6 +37,7 @@ public class UserServiceImpl implements UserService {
    */
   @Override
   @Validated
+  @Transactional
   public InfoUserDto create(UserDto userDto) {
 
     userRepository.findByUsername(userDto.getName())
@@ -50,6 +49,7 @@ public class UserServiceImpl implements UserService {
     User user = userMapper.toUser(userDto);
     user.setCreatedAt(LocalDateTime.now());
     user.setRole(user.getRole() != null ? user.getRole() : UserRole.USER);
+    user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
     return userMapper.toInfoUserDto(userRepository.save(user));
   }
@@ -101,12 +101,14 @@ public class UserServiceImpl implements UserService {
    */
   @Override
   @Validated
+  @Transactional
   public InfoUserDto update(Long id, UserDto userDto) {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(
             ExceptionMessage.USER_BY_ID_NOT_FOUND.formatted(id)));
 
     user = userMapper.merge(user, userDto);
+    user.setPassword(passwordEncoder.encode(userDto.getPassword()));
     user = userRepository.update(id, user);
 
     return userMapper.toInfoUserDto(user);
@@ -120,9 +122,5 @@ public class UserServiceImpl implements UserService {
   @Override
   public void delete(Long id) {
     userRepository.delete(id);
-  }
-
-  public static UserService getInstance() {
-    return instance;
   }
 }

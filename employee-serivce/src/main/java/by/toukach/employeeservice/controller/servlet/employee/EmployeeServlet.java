@@ -6,12 +6,13 @@ import by.toukach.employeeservice.dto.Page;
 import by.toukach.employeeservice.dto.Pageable;
 import by.toukach.employeeservice.dto.Pageable.Fields;
 import by.toukach.employeeservice.exception.EntityNotFoundException;
-import by.toukach.employeeservice.exception.JsonMapperException;
 import by.toukach.employeeservice.exception.ValidationExceptionList;
 import by.toukach.employeeservice.service.employee.EmployeeService;
-import by.toukach.employeeservice.service.employee.impl.EmployeeServiceImpl;
-import by.toukach.employeeservice.util.JsonUtil;
 import by.toukach.employeeservice.util.ServletUtil;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * Сервлет для обработки HTTP запросов по работе с сотрудниками.
@@ -26,10 +29,15 @@ import java.util.stream.Collectors;
 @WebServlet("/v1/employees")
 public class EmployeeServlet extends HttpServlet {
 
-  private final EmployeeService employeeService;
+  private EmployeeService employeeService;
+  private ObjectMapper objectMapper;
 
-  public EmployeeServlet() {
-    employeeService = EmployeeServiceImpl.getInstance();
+  @Override
+  public void init(ServletConfig config) throws ServletException {
+    super.init(config);
+
+    SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
+        config.getServletContext());
   }
 
   @Override
@@ -44,7 +52,7 @@ public class EmployeeServlet extends HttpServlet {
         .pageSize(pageSize != null ? Integer.parseInt(pageSize) : 20)
         .build());
 
-    String pageAsJson = JsonUtil.mapToJson(infoEmployeeDtoPage);
+    String pageAsJson = objectMapper.writeValueAsString(infoEmployeeDtoPage);
 
     resp.getWriter().println(pageAsJson);
 
@@ -59,15 +67,15 @@ public class EmployeeServlet extends HttpServlet {
         req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 
     try {
-      EmployeeDto employeeDto = JsonUtil.mapToPojo(requestString, EmployeeDto.class);
+      EmployeeDto employeeDto = objectMapper.readValue(requestString, EmployeeDto.class);
 
       InfoEmployeeDto infoEmployeeDto = employeeService.create(employeeDto);
 
-      String infoEmployeeDtoAsJson = JsonUtil.mapToJson(infoEmployeeDto);
+      String infoEmployeeDtoAsJson = objectMapper.writeValueAsString(infoEmployeeDto);
 
       resp.getWriter().println(infoEmployeeDtoAsJson);
 
-    } catch (ValidationExceptionList | JsonMapperException e) {
+    } catch (ValidationExceptionList | JsonMappingException e) {
       resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
       return;
     }
@@ -89,15 +97,15 @@ public class EmployeeServlet extends HttpServlet {
         req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 
     try {
-      EmployeeDto employeeDto = JsonUtil.mapToPojo(requestString, EmployeeDto.class);
+      EmployeeDto employeeDto = objectMapper.readValue(requestString, EmployeeDto.class);
 
       InfoEmployeeDto infoEmployeeDto = employeeService.update(id, employeeDto);
 
-      String infoEmployeeDtoAsJson = JsonUtil.mapToJson(infoEmployeeDto);
+      String infoEmployeeDtoAsJson = objectMapper.writeValueAsString(infoEmployeeDto);
 
       resp.getWriter().println(infoEmployeeDtoAsJson);
 
-    } catch (ValidationExceptionList | JsonMapperException e) {
+    } catch (ValidationExceptionList | JsonMappingException e) {
       resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
       return;
     } catch (EntityNotFoundException e) {
@@ -120,5 +128,25 @@ public class EmployeeServlet extends HttpServlet {
     employeeService.delete(id);
 
     ServletUtil.prepareHeader(resp, HttpServletResponse.SC_NO_CONTENT);
+  }
+
+  /**
+   * Метод для внедрения бина {@link EmployeeService}.
+   *
+   * @param employeeService бин для внедрения.
+   */
+  @Autowired
+  public void setEmployeeService(EmployeeService employeeService) {
+    this.employeeService = employeeService;
+  }
+
+  /**
+   * Метод для внедрения бина {@link ObjectMapper}.
+   *
+   * @param objectMapper бин для внедрения.
+   */
+  @Autowired
+  public void setObjectMapper(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
   }
 }

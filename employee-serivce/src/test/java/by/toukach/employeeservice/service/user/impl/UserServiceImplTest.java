@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,21 +17,16 @@ import by.toukach.employeeservice.exception.EntityNotFoundException;
 import by.toukach.employeeservice.exception.ValidationExceptionList;
 import by.toukach.employeeservice.mapper.UserMapper;
 import by.toukach.employeeservice.repository.UserRepository;
-import by.toukach.employeeservice.repository.impl.UserRepositoryImpl;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -46,28 +40,9 @@ public class UserServiceImplTest {
 
   @Mock
   private UserMapper userMapper;
-  private MockedStatic<UserRepositoryImpl> userRepositoryMockedStatic;
 
-  @BeforeEach
-  public void setUp() throws NoSuchMethodException, InvocationTargetException,
-      InstantiationException, IllegalAccessException {
-
-    userRepositoryMockedStatic = mockStatic(UserRepositoryImpl.class);
-    userRepositoryMockedStatic
-        .when(UserRepositoryImpl::getInstance)
-        .thenReturn(userRepository);
-
-    Constructor<UserServiceImpl> privateConstructor = UserServiceImpl.class
-        .getDeclaredConstructor();
-    privateConstructor.setAccessible(true);
-
-    userService = privateConstructor.newInstance();
-  }
-
-  @AfterEach
-  public void cleanUp() {
-    userRepositoryMockedStatic.close();
-  }
+  @Mock
+  private PasswordEncoder passwordEncoder;
 
   @Test
   public void createTestShouldCreateUser() {
@@ -86,6 +61,8 @@ public class UserServiceImplTest {
         .thenReturn(Optional.empty());
     when(userMapper.toUser(userDto))
         .thenReturn(user);
+    when(passwordEncoder.encode(userDto.getPassword()))
+        .thenReturn(userDto.getPassword());
     when(userRepository.save(any(User.class)))
         .thenReturn(user);
     when(userMapper.toInfoUserDto(user))
@@ -254,6 +231,8 @@ public class UserServiceImplTest {
         .thenReturn(Optional.of(user));
     when(userMapper.merge(user, userDto))
         .thenReturn(user);
+    when(passwordEncoder.encode(userDto.getPassword()))
+        .thenReturn(userDto.getPassword());
     when(userRepository.update(id, user))
         .thenReturn(user);
     when(userMapper.toInfoUserDto(user))

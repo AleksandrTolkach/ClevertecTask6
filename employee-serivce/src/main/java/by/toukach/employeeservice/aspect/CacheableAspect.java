@@ -1,17 +1,17 @@
 package by.toukach.employeeservice.aspect;
 
+import by.toukach.employeeservice.config.ApplicationProperty;
 import by.toukach.employeeservice.dao.Employee;
 import by.toukach.employeeservice.enumiration.CacheAlgorithm;
 import by.toukach.employeeservice.service.cache.CacheService;
 import by.toukach.employeeservice.service.cache.CacheServiceFactory;
-import by.toukach.employeeservice.service.cache.impl.CacheServiceFactoryImpl;
-import by.toukach.employeeservice.util.property.ApplicationProperties;
 import java.util.Arrays;
 import java.util.Optional;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Аспект для синхронизации работы с кэшем и БД.
@@ -19,11 +19,19 @@ import org.aspectj.lang.annotation.Pointcut;
 @Aspect
 public class CacheableAspect {
 
-  private final CacheServiceFactory cacheServiceFactory =
-      CacheServiceFactoryImpl.getInstance();
+  private CacheService<Employee, ?> cacheService;
+  private ApplicationProperty applicationProperty;
 
-  private final CacheService<Employee, ?> cacheService = cacheServiceFactory
-      .getCashService(CacheAlgorithm.valueOf(ApplicationProperties.CACHE_ALGORITHM));
+  @Autowired
+  public void setApplicationProperty(ApplicationProperty applicationProperty) {
+    this.applicationProperty = applicationProperty;
+  }
+
+  @Autowired
+  public void setCacheService(CacheServiceFactory cacheServiceFactory) {
+    cacheService = cacheServiceFactory
+        .getCashService(CacheAlgorithm.valueOf(applicationProperty.getCacheAlgorithm()));
+  }
 
   @Pointcut("@annotation(by.toukach.employeeservice.aspect.annotation.CacheableCreate)")
   public void annotatedByCacheableCreate() {
